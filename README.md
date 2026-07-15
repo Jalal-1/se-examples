@@ -6,16 +6,20 @@ not be mixed.
 
 ## Network lanes
 
-| Profile | Topology | Runtime spec/tx | Proof server | Contract-to-contract | State |
+| Profile | Topology | Runtime spec/tx | Proof server | Features | State |
 | --- | --- | --- | --- | --- | --- |
-| `local-v1` | local node + indexer + prover | `1000000` / `3` | `8.1.0` | no | ready |
-| `preview` | hosted node/indexer + local prover | `1000000` / `3` | `8.1.0` | no | ready |
-| `preprod` | hosted node/indexer + local prover | `1000000` / `3` | `8.1.0` | no | ready |
-| `stagenet` | hosted node/indexer + local prover | `2000000` / `4` | `9.0.0-rc.5_experimental` | yes | ready |
-| `local-v2` | local node + indexer + prover | `2000000` / `4` expected | `9.0.0-rc.5_experimental` | yes | planned |
+| `local-v1` | local node + indexer + prover | `1000000` / `3` | `8.1.0` | Compact contracts; shielded/unshielded state; native tokens | ready |
+| `preview` | hosted node/indexer + local prover | `1000000` / `3` | `8.1.0` | Compact contracts; shielded/unshielded state; native tokens | ready |
+| `preprod` | hosted node/indexer + local prover | `1000000` / `3` | `8.1.0` | Compact contracts; shielded/unshielded state; native tokens | ready |
+| **`stagenet`** | hosted node/indexer + local prover | `2000000` / `4` | `9.0.0-rc.5_experimental` | **USDCx crypto primitives; ECDSA; contract-to-contract calls (phase 1, unshielded); ZKIR v3; cNIGHT→mNIGHT bridge; Keccak; secp256k1; contract events (phase 1, unshielded)** | **ready** |
+| `local-v2` | local node + indexer + prover | `2000000` / `4` expected | `9.0.0-rc.5_experimental` | Stagenet feature set except the Cardano bridge | planned |
 
 Exact endpoints, images, SDK/compiler versions, and capabilities live in
 `network-profiles/<profile>/network.json`.
+
+Stagenet features above are the delivered
+[Q2 beta SoW](https://github.com/Jalal-1/stagenet_testing/blob/main/midnight-2-0-stagenet-beta.md).
+ZKIR v3 additionally requires the `--feature-zkir-v3` compiler flag.
 
 ## Start local-v1
 
