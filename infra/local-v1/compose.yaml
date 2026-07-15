@@ -1,0 +1,73 @@
+name: ${COMPOSE_PROJECT_NAME:-se-examples-local-v1}
+
+services:
+  node:
+    image: ${MIDNIGHT_NODE_IMAGE:-midnightntwrk/midnight-node:1.0.0}
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:${MIDNIGHT_NODE_PORT:-9944}:9944
+    volumes:
+      - node-data:/data
+    environment:
+      CFG_PRESET: dev
+      SIDECHAIN_BLOCK_BENEFICIARY: 04bcf7ad3be7a5c790460be82a713af570f22e0f801f6659ab8e84a52be6969e
+    healthcheck:
+      test: [CMD, curl, -f, http://127.0.0.1:9944/health]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 5s
+    labels:
+      io.se-examples.network-profile: local-v1
+
+  indexer:
+    image: ${MIDNIGHT_INDEXER_IMAGE:-midnightntwrk/indexer-standalone:4.3.3}
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:${MIDNIGHT_INDEXER_PORT:-8088}:8088
+    volumes:
+      - indexer-data:/data
+    environment:
+      RUST_LOG: indexer=info,chain_indexer=info,indexer_api=info,wallet_indexer=info,indexer_common=info,fastrace_opentelemetry=off,info
+      APP__APPLICATION__NETWORK_ID: ${MIDNIGHT_NETWORK_ID:-undeployed}
+      APP__INFRA__NODE__URL: ws://node:9944
+      APP__INFRA__STORAGE__PASSWORD: indexer
+      APP__INFRA__PUB_SUB__PASSWORD: indexer
+      APP__INFRA__LEDGER_STATE_STORAGE__PASSWORD: indexer
+      APP__INFRA__SECRET: ${MIDNIGHT_INDEXER_DEV_SECRET:-303132333435363738393031323334353637383930313233343536373839303132}
+      APP__INFRA__SPO_NODE__URL: ws://node:9944
+      APP__INFRA__SPO_NODE__BLOCKFROST_ID: e2e-test-dummy-id
+    healthcheck:
+      test: [CMD-SHELL, cat /var/run/indexer-standalone/running]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    depends_on:
+      node:
+        condition: service_healthy
+    labels:
+      io.se-examples.network-profile: local-v1
+
+  proof-server:
+    image: ${MIDNIGHT_PROOF_SERVER_IMAGE:-midnightntwrk/proof-server:8.1.0}
+    command: [midnight-proof-server, -v]
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:${MIDNIGHT_PROOF_SERVER_PORT:-6300}:6300
+    environment:
+      RUST_BACKTRACE: full
+    healthcheck:
+      # This minimal image contains no shell or HTTP client. The host-side
+      # smoke test below is the authoritative HTTP readiness/version gate.
+      test: [CMD, midnight-proof-server, --help]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    labels:
+      io.se-examples.network-profile: local-v1
+
+volumes:
+  node-data:
+  indexer-data:
