@@ -1,0 +1,51 @@
+{
+  "$schema": "../../schemas/network-profile.schema.json",
+  "schemaVersion": 1,
+  "id": "local-v2",
+  "displayName": "Local Midnight v2 RC",
+  "mode": "local",
+  "status": "planned",
+  "compatibilityLine": "v2-rc",
+  "networkId": "undeployed",
+  "endpoints": {
+    "node": "http://127.0.0.1:9944",
+    "indexer": "http://127.0.0.1:8088/api/v4/graphql",
+    "indexerWs": "ws://127.0.0.1:8088/api/v4/graphql/ws",
+    "proofServer": "http://127.0.0.1:6300"
+  },
+  "runtime": {
+    "specName": "midnight",
+    "specVersion": 2000000,
+    "transactionVersion": 4
+  },
+  "components": {
+    "node": { "version": "2.0.0-rc.4", "image": "midnightntwrk/midnight-node:2.0.0-rc.4", "location": "local" },
+    "indexer": { "version": "4.4.0-pre-alpha.16", "image": "midnightntwrk/indexer-standalone:4.4.0-pre-alpha.16", "location": "local" },
+    "proofServer": { "version": "9.0.0-rc.5_experimental", "image": "midnightntwrk/proof-server:9.0.0-rc.5_experimental", "location": "local" },
+    "compactCompiler": { "version": "0.33.0-rc.1", "location": "build-time" },
+    "compactRuntime": { "version": "0.18.0-rc.1", "package": "@midnight-ntwrk/compact-runtime", "location": "build-time" },
+    "compactJs": { "version": "2.5.5-rc.6", "package": "@midnight-ntwrk/compact-js", "location": "build-time" },
+    "midnightJs": { "version": "5.0.0-beta.4", "package": "@midnight-ntwrk/midnight-js", "location": "build-time" },
+    "walletSdk": { "version": "2.0.0-beta.2", "package": "@midnight-ntwrk/wallet-sdk", "location": "build-time" },
+    "ledger": { "version": "9.1.0.0-rc.3", "package": "@midnightntwrk/ledger-v9", "location": "build-time" }
+  },
+  "capabilities": [
+    "compact-contracts",
+    "shielded-state",
+    "unshielded-state",
+    "native-tokens",
+    "contract-to-contract",
+    "zkir-v3",
+    "contract-events",
+    "keccak256",
+    "secp256k1",
+    "ecdsa-accounts"
+  ],
+  "sources": [
+    "https://github.com/Jalal-1/stagenet_testing/blob/main/midnight-2-0-stagenet-beta.md"
+  ],
+  "notes": [
+    "Expected runtime identity; validate only after a v2-compatible local Compose stack is implemented.",
+    "The Cardano bridge is deliberately excluded from the isolated local capability set."
+  ]
+}

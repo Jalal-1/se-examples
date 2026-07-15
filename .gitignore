@@ -1,0 +1,15 @@
+node_modules/
+.yarn/cache/
+.yarn/install-state.gz
+
+.env
+.env.*
+!.env.example
+
+.cache/
+artifacts/
+managed/
+reports/**/raw/
+
+.DS_Store
+*.log

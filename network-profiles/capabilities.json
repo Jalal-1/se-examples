@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 1,
+  "capabilities": {
+    "compact-contracts": "Deploy and call Compact smart contracts.",
+    "shielded-state": "Use private state and zero-knowledge witnesses.",
+    "unshielded-state": "Read and write public contract ledger state.",
+    "native-tokens": "Use the network's native token and DUST transaction-fee model.",
+    "contract-to-contract": "Call another contract atomically from a Compact circuit.",
+    "zkir-v3": "Compile and prove circuits using the ZKIR v3 backend.",
+    "contract-events": "Emit application-visible Compact contract events.",
+    "keccak256": "Use native Keccak hashing inside Compact circuits.",
+    "secp256k1": "Use native secp256k1 operations inside Compact circuits.",
+    "ecdsa-accounts": "Use the ledger's ECDSA account/signature support.",
+    "cardano-bridge": "Exercise the Cardano-to-Midnight protocol-token bridge."
+  }
+}

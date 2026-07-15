@@ -1,0 +1,46 @@
+{
+  "$schema": "../../schemas/network-profile.schema.json",
+  "schemaVersion": 1,
+  "id": "preview",
+  "displayName": "Midnight Preview",
+  "mode": "hosted",
+  "status": "active",
+  "compatibilityLine": "v1-stable",
+  "networkId": "preview",
+  "endpoints": {
+    "node": "https://rpc.preview.midnight.network",
+    "indexer": "https://indexer.preview.midnight.network/api/v4/graphql",
+    "indexerWs": "wss://indexer.preview.midnight.network/api/v4/graphql/ws",
+    "proofServer": "http://127.0.0.1:6300",
+    "faucet": "https://midnight-tmnight-preview.nethermind.dev/",
+    "explorer": "https://preview.midnightexplorer.com/"
+  },
+  "runtime": {
+    "specName": "midnight",
+    "specVersion": 1000000,
+    "transactionVersion": 3
+  },
+  "components": {
+    "node": { "version": "1.0.0", "image": "midnightntwrk/midnight-node:1.0.0", "location": "remote" },
+    "indexer": { "version": "4.3.3", "image": "midnightntwrk/indexer-standalone:4.3.3", "location": "remote" },
+    "proofServer": { "version": "8.1.0", "image": "midnightntwrk/proof-server:8.1.0", "location": "local" },
+    "compactDevtools": { "version": "0.5.1", "location": "build-time" },
+    "compactCompiler": { "version": "0.31.1", "location": "build-time" },
+    "compactRuntime": { "version": "0.16.0", "package": "@midnight-ntwrk/compact-runtime", "location": "build-time" },
+    "compactJs": { "version": "2.5.1", "package": "@midnight-ntwrk/compact-js", "location": "build-time" },
+    "platformJs": { "version": "2.2.4", "location": "build-time" },
+    "onchainRuntime": { "version": "3.0.0", "location": "build-time" },
+    "midnightJs": { "version": "4.1.1", "package": "@midnight-ntwrk/midnight-js", "location": "build-time" },
+    "walletSdk": { "version": "1.2.0", "package": "@midnightntwrk/wallet-sdk", "location": "build-time" },
+    "testkitJs": { "version": "4.1.1", "package": "@midnight-ntwrk/testkit-js", "location": "build-time" },
+    "dappConnector": { "version": "4.0.1", "location": "build-time" },
+    "ledger": { "version": "8.1.0", "package": "@midnight-ntwrk/ledger-v8", "location": "build-time" },
+    "openzeppelinCompact": { "version": "0.3.0-alpha", "package": "@openzeppelin/compact-contracts", "location": "build-time" }
+  },
+  "capabilities": ["compact-contracts", "shielded-state", "unshielded-state", "native-tokens"],
+  "sources": [
+    "https://docs.midnight.network/relnotes/support-matrix",
+    "https://docs.midnight.network/relnotes/network"
+  ],
+  "notes": ["Live node identity checked on 2026-07-15: spec 1000000, transaction version 3."]
+}

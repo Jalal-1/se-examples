@@ -1,0 +1,44 @@
+{
+  "$schema": "../../schemas/network-profile.schema.json",
+  "schemaVersion": 1,
+  "id": "local-v1",
+  "displayName": "Local Midnight v1",
+  "mode": "local",
+  "status": "planned",
+  "compatibilityLine": "v1-stable",
+  "networkId": "undeployed",
+  "endpoints": {
+    "node": "http://127.0.0.1:9944",
+    "indexer": "http://127.0.0.1:8088/api/v4/graphql",
+    "indexerWs": "ws://127.0.0.1:8088/api/v4/graphql/ws",
+    "proofServer": "http://127.0.0.1:6300"
+  },
+  "runtime": {
+    "specName": "midnight",
+    "specVersion": 1000000,
+    "transactionVersion": 3
+  },
+  "components": {
+    "node": { "version": "1.0.0", "image": "midnightntwrk/midnight-node:1.0.0", "location": "local" },
+    "indexer": { "version": "4.3.3", "image": "midnightntwrk/indexer-standalone:4.3.3", "location": "local" },
+    "proofServer": { "version": "8.1.0", "image": "midnightntwrk/proof-server:8.1.0", "location": "local" },
+    "compactDevtools": { "version": "0.5.1", "location": "build-time" },
+    "compactCompiler": { "version": "0.31.1", "location": "build-time" },
+    "compactRuntime": { "version": "0.16.0", "package": "@midnight-ntwrk/compact-runtime", "location": "build-time" },
+    "compactJs": { "version": "2.5.1", "package": "@midnight-ntwrk/compact-js", "location": "build-time" },
+    "platformJs": { "version": "2.2.4", "location": "build-time" },
+    "onchainRuntime": { "version": "3.0.0", "location": "build-time" },
+    "midnightJs": { "version": "4.1.1", "package": "@midnight-ntwrk/midnight-js", "location": "build-time" },
+    "walletSdk": { "version": "1.2.0", "package": "@midnightntwrk/wallet-sdk", "location": "build-time" },
+    "testkitJs": { "version": "4.1.1", "package": "@midnight-ntwrk/testkit-js", "location": "build-time" },
+    "dappConnector": { "version": "4.0.1", "location": "build-time" },
+    "ledger": { "version": "8.1.0", "package": "@midnight-ntwrk/ledger-v8", "location": "build-time" },
+    "openzeppelinCompact": { "version": "0.3.0-alpha", "package": "@openzeppelin/compact-contracts", "location": "build-time" }
+  },
+  "capabilities": ["compact-contracts", "shielded-state", "unshielded-state", "native-tokens"],
+  "sources": [
+    "https://docs.midnight.network/relnotes/support-matrix",
+    "https://docs.midnight.network/guides/midnight-local-network"
+  ],
+  "notes": ["Expected runtime identity; validate after the local Compose stack is implemented."]
+}
