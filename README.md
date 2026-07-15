@@ -1,53 +1,26 @@
 # se-examples
 
-Network-aware Compact solution examples and integration tests for Midnight.
+Network-aware Compact examples and integration tests for Midnight. Each network
+profile is a hard compatibility boundary: v1 stable and v2 RC components must
+not be mixed.
 
-The repository deliberately treats each Midnight environment as an explicit
-compatibility profile. Preview, Preprod, and Stagenet are not interchangeable:
-they can use different node runtimes, proof servers, compilers, SDKs, and
-language features.
+## Network lanes
 
-## Current scope
+| Profile | Topology | Runtime spec/tx | Proof server | Contract-to-contract | State |
+| --- | --- | --- | --- | --- | --- |
+| `local-v1` | local node + indexer + prover | `1000000` / `3` | `8.1.0` | no | ready |
+| `preview` | hosted node/indexer + local prover | `1000000` / `3` | `8.1.0` | no | ready |
+| `preprod` | hosted node/indexer + local prover | `1000000` / `3` | `8.1.0` | no | ready |
+| `stagenet` | hosted node/indexer + local prover | `2000000` / `4` | `9.0.0-rc.5_experimental` | yes | ready |
+| `local-v2` | local node + indexer + prover | `2000000` / `4` expected | `9.0.0-rc.5_experimental` | yes | planned |
 
-The repository defines the network and example-manifest contracts and provides
-the first runnable infrastructure lane: the complete `local-v1` development
-stack. It does not yet contain application dependencies, generated artifacts,
-wallets, or example applications.
+Exact endpoints, images, SDK/compiler versions, and capabilities live in
+`network-profiles/<profile>/network.json`.
 
-| Profile | Mode | Compatibility line | Status | Purpose |
-| --- | --- | --- | --- | --- |
-| `local-v1` | local full stack | v1 stable | planned | Fast isolated development for Preview/Preprod-compatible apps |
-| `preview` | hosted node/indexer + local prover | v1 stable | active | Early hosted-network integration |
-| `preprod` | hosted node/indexer + local prover | v1 stable | active | Final validation before Mainnet |
-| `stagenet` | hosted node/indexer + local prover | v2 RC | active | New v2 features, including contract-to-contract calls |
-| `local-v2` | local full stack | v2 RC | planned | Local Stagenet-compatible development once the stack is wired |
+## Start local-v1
 
-## Design rules
-
-- Every component version is pinned; no `latest` Docker tags.
-- Stable v1 and v2 RC dependencies will use separate package manifests and
-  lockfiles.
-- Compiler outputs, wallet state, and reports are isolated by network profile.
-- A profile preflight must verify the live runtime identity before a test runs.
-- Each example declares its compatible profiles and required capabilities.
-- Unsupported combinations fail before compilation or deployment.
-- Secrets and wallet state never belong in Git.
-
-## Files
-
-- `schemas/network-profile.schema.json` defines a network profile.
-- `schemas/example-manifest.schema.json` defines an example's compatibility
-  requirements.
-- `network-profiles/capabilities.json` is the capability vocabulary.
-- `network-profiles/*/network.json` contains the pinned configuration for each
-  environment.
-- `infra/local-v1/compose.yaml` runs the v1 node, indexer, and proof server.
-- `scripts/local-v1.sh` is the supported entry point for the local-v1 stack.
-
-## Run local-v1
-
-The default ports are node `9944`, indexer `8088`, and proof server `6300`.
-Only one profile can own those ports at a time.
+Requires Docker Compose v2, `curl`, and `jq`. Defaults: node `9944`, indexer
+`8088`, proof server `6300`.
 
 ```bash
 cp infra/local-v1/.env.example infra/local-v1/.env
@@ -56,20 +29,61 @@ cp infra/local-v1/.env.example infra/local-v1/.env
 ./scripts/local-v1.sh up
 ```
 
-`up` waits for all three services and runs a smoke test that verifies runtime
-spec `1000000`, transaction version `3`, the v4 GraphQL endpoint, and proof
-server `8.1.0`.
-
 ```bash
 ./scripts/local-v1.sh ps
+./scripts/local-v1.sh smoke
 ./scripts/local-v1.sh logs
 ./scripts/local-v1.sh down
 ```
 
-`down` preserves the profile's isolated `node-data` and `indexer-data` Docker
-volumes. No wallet seed or account mnemonic is supplied by this stack.
+`up` waits for all services and runs the smoke test. `down` preserves the
+profile-scoped node and indexer volumes.
+
+## Use Preview, Preprod, or Stagenet
+
+Set `PROFILE` to `preview`, `preprod`, or `stagenet`:
+
+```bash
+PROFILE=preprod
+./scripts/hosted-network.sh "$PROFILE" preflight
+./scripts/hosted-network.sh "$PROFILE" up
+./scripts/hosted-network.sh "$PROFILE" smoke
+./scripts/hosted-network.sh "$PROFILE" down
+```
+
+`up` performs the remote preflight first, switches only proof servers managed by
+this repository, then verifies the selected prover on `127.0.0.1:6300`. An
+unrelated container using that port is reported and left untouched.
+
+## Compatibility gates
+
+Before an example runs, the preflight checks:
+
+- live node software, runtime spec, transaction version, and latest block;
+- the profile's v4 indexer GraphQL endpoint;
+- the local proof-server version when `--proof` or `smoke` is used.
+
+A runtime or prover mismatch fails before compilation or deployment.
+
+## Repository map
+
+- `network-profiles/` — pinned network configuration and capabilities.
+- `schemas/` — network-profile and example-manifest contracts.
+- `infra/local-v1/` — complete v1 local stack.
+- `infra/hosted/` — profile-selected local proof server.
+- `scripts/local-v1.sh` — local stack lifecycle.
+- `scripts/hosted-network.sh` — hosted-network lifecycle and switching.
+- `scripts/preflight-network.sh` — live compatibility validation.
+
+## Safety rules
+
+- Images and dependencies are pinned; no `latest` tags.
+- v1 stable and v2 RC use separate package manifests and lockfiles.
+- Wallet state, mnemonics, secrets, generated artifacts, and reports stay out
+  of Git.
+- Infrastructure does not create or fund wallets.
 
 ## Next step
 
-Add profile-aware hosted-network prover controls and runtime preflights for
-Preview, Preprod, and Stagenet.
+Create the v1 example workspace, install the exact OpenZeppelin Compact alpha,
+and add the first small contract feature test.

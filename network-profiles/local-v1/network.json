@@ -4,7 +4,7 @@
   "id": "local-v1",
   "displayName": "Local Midnight v1",
   "mode": "local",
-  "status": "planned",
+  "status": "active",
   "compatibilityLine": "v1-stable",
   "networkId": "undeployed",
   "endpoints": {
@@ -40,5 +40,5 @@
     "https://docs.midnight.network/relnotes/support-matrix",
     "https://docs.midnight.network/guides/midnight-local-network"
   ],
-  "notes": ["Expected runtime identity; validate after the local Compose stack is implemented."]
+  "notes": ["Live stack checked on 2026-07-15: spec 1000000, transaction version 3, indexer v4, proof server 8.1.0."]
 }

@@ -1,0 +1,22 @@
+name: ${COMPOSE_PROJECT_NAME:?COMPOSE_PROJECT_NAME is required}
+
+services:
+  proof-server:
+    image: ${MIDNIGHT_PROOF_SERVER_IMAGE:?MIDNIGHT_PROOF_SERVER_IMAGE is required}
+    command: [midnight-proof-server, -v]
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:6300:6300
+    environment:
+      RUST_BACKTRACE: full
+    healthcheck:
+      # The minimal proof-server images contain no shell or HTTP client.
+      # scripts/preflight-network.sh performs the HTTP readiness/version check.
+      test: [CMD, midnight-proof-server, --help]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    labels:
+      io.se-examples.component: proof-server
+      io.se-examples.network-profile: ${MIDNIGHT_PROFILE:?MIDNIGHT_PROFILE is required}

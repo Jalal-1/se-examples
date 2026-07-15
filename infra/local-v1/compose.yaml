@@ -66,6 +66,7 @@ services:
       retries: 20
       start_period: 10s
     labels:
+      io.se-examples.component: proof-server
       io.se-examples.network-profile: local-v1
 
 volumes:
