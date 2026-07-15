@@ -1,0 +1,16 @@
+{
+  "name": "se-examples",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Network-aware Compact examples and integration tests for Midnight",
+  "packageManager": "npm@10.9.7",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "install:v1": "npm ci --prefix toolchains/v1",
+    "check:v1": "node scripts/check-v1-toolchain.mjs",
+    "compile:v1": "npm --prefix toolchains/v1 run compile",
+    "test:v1": "npm --prefix toolchains/v1 run test"
+  }
+}

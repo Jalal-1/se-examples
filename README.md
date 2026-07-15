@@ -69,12 +69,27 @@ Before an example runs, the preflight checks:
 
 A runtime or prover mismatch fails before compilation or deployment.
 
+## Prepare the v1 toolchain
+
+The v1 npm dependency island is shared by `local-v1`, Preview, and Preprod. It
+has its own lockfile and rejects Stagenet/v2 packages.
+
+```bash
+npm run install:v1
+npm run check:v1
+```
+
+OpenZeppelin Compact is pinned to `0.3.0-alpha`; all Midnight packages are
+pinned to the exact v1 profile versions. Compile and test commands are reserved
+for the first example and currently fail with an explicit placeholder message.
+
 ## Repository map
 
 - `network-profiles/` — pinned network configuration and capabilities.
 - `schemas/` — network-profile and example-manifest contracts.
 - `infra/local-v1/` — complete v1 local stack.
 - `infra/hosted/` — profile-selected local proof server.
+- `toolchains/v1/` — isolated v1 npm manifest and lockfile.
 - `scripts/local-v1.sh` — local stack lifecycle.
 - `scripts/hosted-network.sh` — hosted-network lifecycle and switching.
 - `scripts/preflight-network.sh` — live compatibility validation.
@@ -89,5 +104,5 @@ A runtime or prover mismatch fails before compilation or deployment.
 
 ## Next step
 
-Create the v1 example workspace, install the exact OpenZeppelin Compact alpha,
-and add the first small contract feature test.
+Add the first small OpenZeppelin feature test: an Ownable Counter targeting
+`local-v1`, Preview, and Preprod.

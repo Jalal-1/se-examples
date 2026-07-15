@@ -1,0 +1,26 @@
+{
+  "name": "@se-examples/toolchain-v1",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Pinned v1 stable dependencies for local-v1, Preview, and Preprod examples",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "check": "node ../../scripts/check-v1-toolchain.mjs",
+    "compile": "node ../../scripts/pending-v1-command.mjs compile",
+    "test": "node ../../scripts/pending-v1-command.mjs test"
+  },
+  "dependencies": {
+    "@midnight-ntwrk/compact-js": "2.5.1",
+    "@midnight-ntwrk/compact-runtime": "0.16.0",
+    "@midnight-ntwrk/ledger-v8": "8.1.0",
+    "@midnight-ntwrk/midnight-js": "4.1.1",
+    "@midnightntwrk/wallet-sdk": "1.2.0",
+    "@openzeppelin/compact-contracts": "0.3.0-alpha"
+  },
+  "devDependencies": {
+    "@midnight-ntwrk/testkit-js": "4.1.1"
+  }
+}
