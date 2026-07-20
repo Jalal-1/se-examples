@@ -22,8 +22,10 @@ Use the network-neutral runner rather than invoking this toolchain directly:
 
 ```bash
 npm run e2e -- --example ownable-counter --profile local-v2
+npm run e2e -- --example pausable-fungible-token --profile local-v2
 npm run e2e -- --example ownable-counter --profile stagenet
+npm run e2e -- --example pausable-fungible-token --profile stagenet
 ```
 
-The second command requires a funded `SE_STAGENET_SEED`. Generated output lives
+Stagenet commands require a funded `SE_STAGENET_SEED`. Generated output lives
 under `toolchains/v2/artifacts/` and is gitignored.

@@ -7,24 +7,28 @@ import { firstSyncedState } from './wallet.mjs';
 
 const createWalletProvider = async (context) => {
   const state = await firstSyncedState(context.wallet, 60_000);
+  const balance = async (method, transaction, ttl) => {
+    const recipe = await context.wallet[method](
+      transaction,
+      {
+        shieldedSecretKeys: context.shieldedSecretKeys,
+        dustSecretKey: context.dustSecretKey,
+      },
+      { ttl: ttl ?? new Date(Date.now() + 30 * 60_000) },
+    );
+    const signed = await context.wallet.signRecipe(recipe, (payload) =>
+      context.unshieldedKeystore.signData(payload),
+    );
+    return context.wallet.finalizeRecipe(signed);
+  };
   return {
     getCoinPublicKey: () => state.shielded.coinPublicKey.toHexString(),
     getEncryptionPublicKey: () =>
       state.shielded.encryptionPublicKey.toHexString(),
-    balanceTx: async (transaction, ttl) => {
-      const recipe = await context.wallet.balanceUnboundTransaction(
-        transaction,
-        {
-          shieldedSecretKeys: context.shieldedSecretKeys,
-          dustSecretKey: context.dustSecretKey,
-        },
-        { ttl: ttl ?? new Date(Date.now() + 30 * 60_000) },
-      );
-      const signed = await context.wallet.signRecipe(recipe, (payload) =>
-        context.unshieldedKeystore.signData(payload),
-      );
-      return context.wallet.finalizeRecipe(signed);
-    },
+    balanceTx: (transaction, ttl) =>
+      balance('balanceUnboundTransaction', transaction, ttl),
+    balanceUnprovenTx: (transaction, ttl) =>
+      balance('balanceUnprovenTransaction', transaction, ttl),
     submitTx: (transaction) => context.wallet.submitTransaction(transaction),
   };
 };

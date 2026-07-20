@@ -23,6 +23,7 @@ From the repository root, run the v1 examples with:
 npm run test:v1       # compile without proving keys, then run circuit tests
 npm run compile:v1    # generate complete deployable artifacts
 npm run e2e -- --example ownable-counter --profile local-v1
+npm run e2e -- --example pausable-fungible-token --profile local-v1
 ```
 
 Generated output lives in `toolchains/v1/artifacts/` and is gitignored.

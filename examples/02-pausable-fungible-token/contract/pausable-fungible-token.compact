@@ -1,0 +1,115 @@
+// SPDX-License-Identifier: MIT
+
+pragma language_version >= 0.23.0;
+
+import CompactStandardLibrary;
+import "@openzeppelin/compact-contracts/access/Ownable" prefix Ownable_;
+import "@openzeppelin/compact-contracts/security/Pausable" prefix Pausable_;
+import "@openzeppelin/compact-contracts/token/FungibleToken" prefix FungibleToken_;
+
+export { ContractAddress, Either };
+export {
+  FungibleToken__balances,
+  FungibleToken__allowances,
+  FungibleToken__totalSupply,
+  Pausable__isPaused
+};
+
+constructor(
+  name_: Opaque<"string">,
+  symbol_: Opaque<"string">,
+  decimals_: Uint<8>,
+  initialSupply: Uint<128>,
+  initialOwner: Either<Bytes<32>, ContractAddress>
+) {
+  Ownable_initialize(initialOwner);
+  FungibleToken_initialize(name_, symbol_, decimals_);
+  FungibleToken__mint(initialOwner, initialSupply);
+}
+
+export circuit name(): Opaque<"string"> {
+  return FungibleToken_name();
+}
+
+export circuit symbol(): Opaque<"string"> {
+  return FungibleToken_symbol();
+}
+
+export circuit decimals(): Uint<8> {
+  return FungibleToken_decimals();
+}
+
+export circuit totalSupply(): Uint<128> {
+  return FungibleToken_totalSupply();
+}
+
+export circuit balanceOf(
+  account: Either<Bytes<32>, ContractAddress>
+): Uint<128> {
+  return FungibleToken_balanceOf(account);
+}
+
+export circuit allowance(
+  accountOwner: Either<Bytes<32>, ContractAddress>,
+  spender: Either<Bytes<32>, ContractAddress>
+): Uint<128> {
+  return FungibleToken_allowance(accountOwner, spender);
+}
+
+export circuit transfer(
+  to: Either<Bytes<32>, ContractAddress>,
+  value: Uint<128>
+): Boolean {
+  Pausable_assertNotPaused();
+  return FungibleToken_transfer(to, value);
+}
+
+export circuit approve(
+  spender: Either<Bytes<32>, ContractAddress>,
+  value: Uint<128>
+): Boolean {
+  Pausable_assertNotPaused();
+  return FungibleToken_approve(spender, value);
+}
+
+export circuit transferFrom(
+  fromAddress: Either<Bytes<32>, ContractAddress>,
+  to: Either<Bytes<32>, ContractAddress>,
+  value: Uint<128>
+): Boolean {
+  Pausable_assertNotPaused();
+  return FungibleToken_transferFrom(fromAddress, to, value);
+}
+
+export circuit mint(
+  to: Either<Bytes<32>, ContractAddress>,
+  value: Uint<128>
+): [] {
+  Ownable_assertOnlyOwner();
+  Pausable_assertNotPaused();
+  FungibleToken__mint(to, value);
+}
+
+export circuit owner(): Either<Bytes<32>, ContractAddress> {
+  return Ownable_owner();
+}
+
+export circuit transferOwnership(
+  newOwner: Either<Bytes<32>, ContractAddress>
+): [] {
+  Ownable_transferOwnership(newOwner);
+}
+
+export circuit isPaused(): Boolean {
+  return Pausable_isPaused();
+}
+
+export circuit pause(): [] {
+  Ownable_assertOnlyOwner();
+  Pausable__pause();
+}
+
+export circuit unpause(): [] {
+  Ownable_assertOnlyOwner();
+  Pausable__unpause();
+}

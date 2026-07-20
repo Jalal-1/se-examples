@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('../../', import.meta.url));
+const toolchainDirectories = { 'v1-stable': 'v1', 'v2-rc': 'v2' };
 const readJson = (relativePath) =>
   JSON.parse(readFileSync(path.join(repoRoot, relativePath), 'utf8'));
 const assert = (condition, message) => {
@@ -82,6 +83,20 @@ const validateExampleCoverage = (allProfiles, allExamples) => {
           target.openzeppelin?.version ===
             profile.components.openzeppelinCompact?.version,
         `${manifest.id}/${profile.id} OpenZeppelin pin does not match the profile`,
+      );
+      const toolchainDirectory = toolchainDirectories[profile.compatibilityLine];
+      assert(
+        toolchainDirectory &&
+          existsSync(
+            path.join(
+              repoRoot,
+              'toolchains',
+              toolchainDirectory,
+              'runners',
+              `${manifest.id}.mjs`,
+            ),
+          ),
+        `${manifest.id} has no ${profile.compatibilityLine} network runner`,
       );
       eligible.push(profile.id);
     }

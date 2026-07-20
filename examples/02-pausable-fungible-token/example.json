@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schemas/example-manifest.schema.json",
+  "schemaVersion": 2,
+  "id": "pausable-fungible-token",
+  "displayName": "Pausable Fungible Token",
+  "description": "An owner-administered OpenZeppelin fungible token with emergency pause controls.",
+  "requires": ["compact-contracts", "shielded-state", "unshielded-state"],
+  "toolchains": {
+    "v1-stable": {
+      "source": "contract/pausable-fungible-token.compact",
+      "openzeppelin": {
+        "package": "@openzeppelin/compact-contracts",
+        "version": "0.3.0-alpha"
+      }
+    },
+    "v2-rc": {
+      "source": "contract/pausable-fungible-token.compact",
+      "openzeppelin": {
+        "package": "@openzeppelin/compact-contracts",
+        "version": "0.3.0-alpha"
+      }
+    }
+  }
+}

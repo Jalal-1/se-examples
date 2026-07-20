@@ -38,16 +38,17 @@ derived from the [Midnight 2.0 beta SoW](https://github.com/Jalal-1/stagenet_tes
 | ID | OpenZeppelin module | Required capabilities | Networks |
 | --- | --- | --- | --- |
 | [`ownable-counter`](examples/01-ownable-counter/) | `Ownable` | Compact contracts, shielded state, unshielded state | all five profiles |
+| [`pausable-fungible-token`](examples/02-pausable-fungible-token/) | `Ownable`, `Pausable`, `FungibleToken` | Compact contracts, shielded state, unshielded state | all five profiles |
 
 The universal invocation is:
 
 ```bash
-npm run e2e -- --example ownable-counter --profile <profile>
+npm run e2e -- --example <example-id> --profile <profile>
 ```
 
-The profile automatically selects the isolated v1 or v2 toolchain. A successful
-Ownable Counter run deploys a contract, checks owner and non-owner calls,
-transfers ownership, and ends with `final counter=2`.
+Valid IDs are `ownable-counter` and `pausable-fungible-token`. The profile
+automatically selects the isolated v1 or v2 toolchain. Each app directory has
+exact commands for all five profiles and its expected final state.
 
 ## One-time setup
 
@@ -80,6 +81,8 @@ cp -n infra/local-v1/.env.example infra/local-v1/.env
 ./scripts/local-v1.sh pull
 ./scripts/local-v1.sh up
 npm run e2e -- --example ownable-counter --profile local-v1
+# or
+npm run e2e -- --example pausable-fungible-token --profile local-v1
 ```
 
 The runner uses the funded public development genesis seed. Manage the stack
@@ -94,6 +97,8 @@ cp -n infra/local-v2/.env.example infra/local-v2/.env
 ./scripts/local-v2.sh pull
 ./scripts/local-v2.sh up
 npm run e2e -- --example ownable-counter --profile local-v2
+# or
+npm run e2e -- --example pausable-fungible-token --profile local-v2
 ```
 
 This runs the Stagenet-compatible node `2.0.0-rc.4`, v4 indexer, and
@@ -170,6 +175,8 @@ unset SE_STAGENET_SEED
 The faucet is recorded in
 [`network-profiles/stagenet/network.json`](network-profiles/stagenet/network.json).
 Each hosted-network E2E run deploys a new contract and spends test-network DUST.
+The token app deploys one base contract plus 15 verifier-key maintenance
+transactions, so allow several minutes and more DUST than the counter app.
 
 ## Diagnostics and safety
 
