@@ -10,5 +10,18 @@ npm run check:v1
 ```
 
 The Compact compiler is an external tool and remains pinned to `0.31.1` by the
-network profile. `compile:v1` and `test:v1` intentionally remain unavailable
-until the first example is added.
+network profile. Install that version without changing another project's
+default compiler:
+
+```bash
+compact update --no-set-default 0.31.1
+```
+
+From the repository root, run the v1 examples with:
+
+```bash
+npm run test:v1       # compile without proving keys, then run circuit tests
+npm run compile:v1    # generate complete deployable artifacts
+```
+
+Generated output lives in `toolchains/v1/artifacts/` and is gitignored.

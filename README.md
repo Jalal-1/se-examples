@@ -21,6 +21,12 @@ Stagenet features above are the delivered
 [Q2 beta SoW](https://github.com/Jalal-1/stagenet_testing/blob/main/midnight-2-0-stagenet-beta.md).
 ZKIR v3 additionally requires the `--feature-zkir-v3` compiler flag.
 
+## Examples
+
+| Example | OpenZeppelin module | Networks | Coverage |
+| --- | --- | --- | --- |
+| [`01-ownable-counter`](examples/01-ownable-counter/) | `Ownable` | local-v1, Preview, Preprod | owner-only mutation, rejection, ownership transfer |
+
 ## Start local-v1
 
 Requires Docker Compose v2, `curl`, and `jq`. Defaults: node `9944`, indexer
@@ -80,12 +86,22 @@ npm run check:v1
 ```
 
 OpenZeppelin Compact is pinned to `0.3.0-alpha`; all Midnight packages are
-pinned to the exact v1 profile versions. Compile and test commands are reserved
-for the first example and currently fail with an explicit placeholder message.
+pinned to the exact v1 profile versions. The compiler is pinned independently
+by the network profile.
+
+```bash
+compact update --no-set-default 0.31.1
+npm run test:v1
+npm run compile:v1
+```
+
+`test:v1` runs fast circuit-level behavior tests without proving keys;
+`compile:v1` generates the complete deployable artifacts.
 
 ## Repository map
 
 - `network-profiles/` — pinned network configuration and capabilities.
+- `examples/` — small feature-focused Compact contracts and manifests.
 - `schemas/` — network-profile and example-manifest contracts.
 - `infra/local-v1/` — complete v1 local stack.
 - `infra/hosted/` — profile-selected local proof server.
@@ -104,5 +120,5 @@ for the first example and currently fail with an explicit placeholder message.
 
 ## Next step
 
-Add the first small OpenZeppelin feature test: an Ownable Counter targeting
-`local-v1`, Preview, and Preprod.
+Add the wallet-backed deployment runner for the Ownable Counter, beginning with
+`local-v1` and then reusing the same flow on Preview and Preprod.

@@ -1,0 +1,29 @@
+// SPDX-License-Identifier: MIT
+
+pragma language_version >= 0.23.0;
+
+import CompactStandardLibrary;
+import "@openzeppelin/compact-contracts/access/Ownable" prefix Ownable_;
+
+export { ContractAddress, Either };
+
+export ledger counter: Counter;
+
+constructor(initialOwner: Either<Bytes<32>, ContractAddress>) {
+  Ownable_initialize(initialOwner);
+}
+
+export circuit owner(): Either<Bytes<32>, ContractAddress> {
+  return Ownable_owner();
+}
+
+export circuit increment(): [] {
+  Ownable_assertOnlyOwner();
+  counter.increment(1);
+}
+
+export circuit transferOwnership(
+  newOwner: Either<Bytes<32>, ContractAddress>
+): [] {
+  Ownable_transferOwnership(newOwner);
+}

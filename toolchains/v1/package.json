@@ -9,8 +9,9 @@
   },
   "scripts": {
     "check": "node ../../scripts/check-v1-toolchain.mjs",
-    "compile": "node ../../scripts/pending-v1-command.mjs compile",
-    "test": "node ../../scripts/pending-v1-command.mjs test"
+    "compile": "npm run check && node ../../scripts/compile-v1-examples.mjs",
+    "compile:test": "npm run check && node ../../scripts/compile-v1-examples.mjs --skip-zk",
+    "test": "npm run compile:test && node --test tests/*.test.mjs"
   },
   "dependencies": {
     "@midnight-ntwrk/compact-js": "2.5.1",

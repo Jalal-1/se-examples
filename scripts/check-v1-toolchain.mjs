@@ -1,8 +1,10 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('../', import.meta.url));
-const readJson = (path) => JSON.parse(readFileSync(`${repoRoot}/${path}`, 'utf8'));
+const readJson = (relativePath) =>
+  JSON.parse(readFileSync(`${repoRoot}/${relativePath}`, 'utf8'));
 const fail = (message) => {
   throw new Error(message);
 };
@@ -73,10 +75,76 @@ const forbiddenV2Packages = [
   '@midnight-ntwrk/ledger-v9',
   '@midnight-ntwrk/zkir-v3',
 ];
-for (const path of Object.keys(lockfile.packages)) {
+for (const lockPath of Object.keys(lockfile.packages)) {
   for (const packageName of forbiddenV2Packages) {
-    assert(!path.endsWith(`node_modules/${packageName}`), `v2 package found in v1 lockfile: ${packageName}`);
+    assert(
+      !lockPath.endsWith(`node_modules/${packageName}`),
+      `v2 package found in v1 lockfile: ${packageName}`,
+    );
   }
 }
 
-console.log(`v1 toolchain verified: ${requiredPins.length} profile pins, npm lockfile v3, no v2 packages`);
+const examplesRoot = path.join(repoRoot, 'examples');
+const exampleDirectories = existsSync(examplesRoot)
+  ? readdirSync(examplesRoot, { withFileTypes: true }).filter((entry) =>
+      entry.isDirectory(),
+    )
+  : [];
+const exampleIds = new Set();
+let v1ExampleCount = 0;
+
+for (const entry of exampleDirectories) {
+  const manifestPath = `examples/${entry.name}/example.json`;
+  assert(
+    existsSync(`${repoRoot}/${manifestPath}`),
+    `${entry.name} has no example.json`,
+  );
+  const example = readJson(manifestPath);
+
+  assert(example.schemaVersion === 1, `${entry.name} has an unsupported manifest version`);
+  assert(!exampleIds.has(example.id), `duplicate example id: ${example.id}`);
+  exampleIds.add(example.id);
+
+  if (example.toolchainLine !== 'v1-stable') continue;
+  v1ExampleCount += 1;
+
+  assert(example.networks.length > 0, `${example.id} has no target networks`);
+  for (const networkId of example.networks) {
+    const targetPath = `network-profiles/${networkId}/network.json`;
+    assert(
+      existsSync(`${repoRoot}/${targetPath}`),
+      `${example.id} targets unknown network ${networkId}`,
+    );
+    const target = readJson(targetPath);
+    assert(
+      target.compatibilityLine === example.toolchainLine,
+      `${example.id} mixes ${example.toolchainLine} with ${networkId}/${target.compatibilityLine}`,
+    );
+    for (const capability of example.requires) {
+      assert(
+        target.capabilities.includes(capability),
+        `${example.id} requires ${capability}, which ${networkId} does not provide`,
+      );
+    }
+  }
+
+  assert(
+    example.openzeppelin?.package === profile.components.openzeppelinCompact.package,
+    `${example.id} uses the wrong OpenZeppelin package`,
+  );
+  assert(
+    example.openzeppelin?.version === profile.components.openzeppelinCompact.version,
+    `${example.id} must pin OpenZeppelin ${profile.components.openzeppelinCompact.version}`,
+  );
+  assert(
+    existsSync(`${repoRoot}/examples/${entry.name}/contract/${example.id}.compact`),
+    `${example.id} is missing contract/${example.id}.compact`,
+  );
+}
+
+assert(v1ExampleCount > 0, 'v1 toolchain has no examples');
+
+console.log(
+  `v1 toolchain verified: ${requiredPins.length} profile pins, ${v1ExampleCount} example(s), ` +
+    'npm lockfile v3, no v2 packages',
+);
