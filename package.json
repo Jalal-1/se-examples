@@ -9,9 +9,18 @@
   },
   "scripts": {
     "install:v1": "npm ci --prefix toolchains/v1",
+    "install:v2": "npm ci --prefix toolchains/v2",
+    "install:compiler:v2": "./scripts/install-v2-compiler.sh",
     "check:v1": "node scripts/check-v1-toolchain.mjs",
+    "check:v2": "node scripts/check-v2-toolchain.mjs",
+    "check": "npm run check:v1 && npm run check:v2",
     "compile:v1": "npm --prefix toolchains/v1 run compile",
+    "compile:v2": "npm --prefix toolchains/v2 run compile",
     "test:v1": "npm --prefix toolchains/v1 run test",
-    "e2e:v1": "npm run compile:v1 && npm --prefix toolchains/v1 run e2e --"
+    "test:v2": "npm --prefix toolchains/v2 run test",
+    "test": "npm run test:v1 && npm run test:v2",
+    "e2e": "node scripts/run-example.mjs",
+    "e2e:v1": "npm run compile:v1 && npm --prefix toolchains/v1 run e2e --",
+    "e2e:v2": "npm run compile:v2 && npm --prefix toolchains/v2 run e2e --"
   }
 }

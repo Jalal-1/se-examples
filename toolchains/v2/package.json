@@ -1,0 +1,28 @@
+{
+  "name": "@se-examples/toolchain-v2",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Pinned v2 RC dependencies for local-v2 and Stagenet examples",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "check": "node ../../scripts/check-v2-toolchain.mjs",
+    "compile": "npm run check && node ../../scripts/compile-v2-examples.mjs",
+    "compile:test": "npm run check && node ../../scripts/compile-v2-examples.mjs --skip-zk",
+    "test": "npm run compile:test && node --test tests/*.test.mjs",
+    "e2e": "node runners/ownable-counter.mjs"
+  },
+  "dependencies": {
+    "@midnight-ntwrk/compact-js": "2.5.5-rc.6",
+    "@midnight-ntwrk/compact-runtime": "0.18.0-rc.1",
+    "@midnight-ntwrk/midnight-js": "5.0.0-beta.4",
+    "@midnight-ntwrk/midnight-js-http-client-proof-provider": "5.0.0-beta.4",
+    "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "5.0.0-beta.4",
+    "@midnight-ntwrk/midnight-js-node-zk-config-provider": "5.0.0-beta.4",
+    "@midnightntwrk/ledger-v9": "1.0.0-rc.3",
+    "@midnightntwrk/wallet-sdk": "2.0.0-beta.2",
+    "@openzeppelin/compact-contracts": "0.3.0-alpha"
+  }
+}

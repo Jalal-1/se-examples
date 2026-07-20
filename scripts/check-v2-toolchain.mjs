@@ -1,9 +1,9 @@
 import { checkToolchain } from './lib/check-toolchain.mjs';
 
 checkToolchain({
-  compatibilityLine: 'v1-stable',
-  profileId: 'local-v1',
-  toolchainDirectory: 'v1',
+  compatibilityLine: 'v2-rc',
+  profileId: 'local-v2',
+  toolchainDirectory: 'v2',
   requiredPins: [
     ['dependencies', 'compactJs'],
     ['dependencies', 'compactRuntime'],
@@ -14,11 +14,10 @@ checkToolchain({
     ['dependencies', 'nodeZkConfigProvider'],
     ['dependencies', 'walletSdk'],
     ['dependencies', 'openzeppelinCompact'],
-    ['devDependencies', 'testkitJs'],
   ],
   forbiddenPackages: [
-    '@midnightntwrk/ledger-v9',
-    '@midnight-ntwrk/ledger-v9',
-    '@midnight-ntwrk/zkir-v3',
+    '@midnight-ntwrk/ledger-v8',
+    '@midnightntwrk/ledger-v8',
+    '@midnight-ntwrk/onchain-runtime-v3',
   ],
 });

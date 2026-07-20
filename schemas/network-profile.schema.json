@@ -110,6 +110,7 @@
       "required": ["version"],
       "properties": {
         "version": { "type": "string", "minLength": 1 },
+        "protocolVersion": { "type": "string", "minLength": 1 },
         "image": { "type": "string", "minLength": 1 },
         "package": { "type": "string", "minLength": 1 },
         "location": { "enum": ["local", "remote", "build-time"] }

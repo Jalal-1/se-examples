@@ -1,191 +1,194 @@
 # se-examples
 
-Network-aware Compact examples and integration tests for Midnight. Each network
-profile is a hard compatibility boundary: v1 stable and v2 RC components must
-not be mixed.
+OpenZeppelin Compact mini-apps that run against every compatible Midnight
+network. Network profiles are hard compatibility boundaries: v1 stable and v2
+RC dependencies never share a package manifest, lockfile, compiler, or runner.
+
+## Universal mini-app rule
+
+Every mini-app declares the capabilities it needs and supplies an implementation
+for every matching compatibility line. `npm run check` evaluates it against
+every active profile:
+
+- if the profile has all required capabilities, the app must build and run there;
+- exclusion is allowed only when the profile lacks a declared capability;
+- dependency and OpenZeppelin pins must exactly match the selected profile.
+
+For example, a contract-to-contract app is correctly excluded from v1 because
+those profiles lack `contract-to-contract`; it must run on both `local-v2` and
+`stagenet`. Adding an active capable network without adding app coverage makes
+the repository check fail.
 
 ## Network lanes
 
-| Profile | Topology | Runtime spec/tx | Proof server | Features | State |
-| --- | --- | --- | --- | --- | --- |
-| `local-v1` | local node + indexer + prover | `1000000` / `3` | `8.1.0` | Compact contracts; shielded/unshielded state; native tokens | infra + E2E ready |
-| `preview` | hosted node/indexer + local prover | `1000000` / `3` | `8.1.0` | Compact contracts; shielded/unshielded state; native tokens | infra + E2E ready |
-| `preprod` | hosted node/indexer + local prover | `1000000` / `3` | `8.1.0` | Compact contracts; shielded/unshielded state; native tokens | infra + E2E ready |
-| **`stagenet`** | hosted node/indexer + local prover | `2000000` / `4` | `9.0.0-rc.5_experimental` | **USDCx crypto primitives; ECDSA; contract-to-contract calls (phase 1, unshielded); ZKIR v3; cNIGHT→mNIGHT bridge; Keccak; secp256k1; contract events (phase 1, unshielded)** | **infra ready; v2 E2E pending** |
-| `local-v2` | local node + indexer + prover | `2000000` / `4` expected | `9.0.0-rc.5_experimental` | Stagenet feature set except the Cardano bridge | planned |
+| Profile | Stack | Line | Distinguishing features | Mini-app runner |
+| --- | --- | --- | --- | --- |
+| `local-v1` | local node, indexer, prover | v1 stable | baseline Compact, shielded/unshielded state, native tokens | ready |
+| `preview` | public node/indexer, local prover | v1 stable | baseline public test network | ready |
+| `preprod` | public node/indexer, local prover | v1 stable | baseline public test network | ready |
+| `local-v2` | local node, indexer, prover | v2 RC | C2C, events, ZKIR v3, Keccak, secp256k1, ECDSA | ready |
+| `stagenet` | public node/indexer, local prover | v2 RC | Local v2 features plus the Cardano bridge | ready |
 
-Exact endpoints, images, SDK/compiler versions, and capabilities live in
-`network-profiles/<profile>/network.json`.
+Exact endpoints, images, dependency versions, and capabilities live in
+`network-profiles/<profile>/network.json`. The Stagenet pins and feature set are
+derived from the [Midnight 2.0 beta SoW](https://github.com/Jalal-1/stagenet_testing/blob/main/midnight-2-0-stagenet-beta.md).
 
-Stagenet features above are the delivered
-[Q2 beta SoW](https://github.com/Jalal-1/stagenet_testing/blob/main/midnight-2-0-stagenet-beta.md).
-ZKIR v3 additionally requires the `--feature-zkir-v3` compiler flag.
+## Mini-apps
 
-## Examples
-
-| Example | OpenZeppelin module | Networks | Coverage |
+| ID | OpenZeppelin module | Required capabilities | Networks |
 | --- | --- | --- | --- |
-| [`01-ownable-counter`](examples/01-ownable-counter/) | `Ownable` | local-v1, Preview, Preprod; Stagenet pending v2 | owner-only mutation, rejection, ownership transfer |
+| [`ownable-counter`](examples/01-ownable-counter/) | `Ownable` | Compact contracts, shielded state, unshielded state | all five profiles |
 
-## Test `01-ownable-counter`
-
-The mini-app deploys an OpenZeppelin Ownable counter, increments it as the
-owner, rejects a stranger, transfers ownership, rejects the old owner, and
-increments as the new owner. A successful E2E run ends with `final counter=2`.
-
-### One-time setup
-
-Requires Node.js 22+, npm, Docker Compose v2, `curl`, `jq`, and Compact
-compiler `0.31.1`:
+The universal invocation is:
 
 ```bash
+npm run e2e -- --example ownable-counter --profile <profile>
+```
+
+The profile automatically selects the isolated v1 or v2 toolchain. A successful
+Ownable Counter run deploys a contract, checks owner and non-owner calls,
+transfers ownership, and ends with `final counter=2`.
+
+## One-time setup
+
+Requires Node.js 22+, npm, Docker Compose v2, the Compact CLI, `curl`, `jq`, and
+`unzip`.
+
+```bash
+# v1 compiler used by local-v1, Preview, and Preprod
 compact update --no-set-default 0.31.1
+
+# checksum-verified v2 RC compiler used by local-v2 and Stagenet
+npm run install:compiler:v2
+
+# isolated dependency sets
 npm run install:v1
-npm run check:v1
+npm run install:v2
+
+# pins, capability coverage, and fast circuit simulators
+npm run check
+npm test
 ```
 
-Run the fast circuit simulator before using any network:
+`npm test` does not submit transactions. Full E2E runs compile proving assets
+automatically.
 
-```bash
-npm run test:v1
-```
-
-This validates v1 contract behavior but does not submit a transaction.
-
-### Local v1 — full E2E supported
-
-Start the pinned local node, indexer, and v1 proof server, then run the app:
+## Run on local-v1
 
 ```bash
 cp -n infra/local-v1/.env.example infra/local-v1/.env
+./scripts/local-v1.sh pull
 ./scripts/local-v1.sh up
-npm run e2e:v1 -- --profile local-v1
+npm run e2e -- --example ownable-counter --profile local-v1
 ```
 
-The runner uses the public genesis-funded local development seed. Inspect or
-stop the stack with:
+The runner uses the funded public development genesis seed. Manage the stack
+with `./scripts/local-v1.sh ps`, `logs`, or `down`; `down` preserves its named
+volumes. Local v1 and Local v2 share host ports, so starting either one safely
+stops the other.
+
+## Run on local-v2
 
 ```bash
-./scripts/local-v1.sh ps
-./scripts/local-v1.sh logs
-./scripts/local-v1.sh down
+cp -n infra/local-v2/.env.example infra/local-v2/.env
+./scripts/local-v2.sh pull
+./scripts/local-v2.sh up
+npm run e2e -- --example ownable-counter --profile local-v2
 ```
 
-`down` preserves the profile-scoped node and indexer volumes.
+This runs the Stagenet-compatible node `2.0.0-rc.4`, v4 indexer, and
+`9.0.0-rc.5_experimental` prover locally with ZKIR v3 artifacts. Manage it with
+`./scripts/local-v2.sh ps`, `logs`, or `down`; volumes are preserved by `down`.
 
-### Preview — full E2E supported
+## Run on Preview
 
-Start Preview's pinned v1 proof server, enter a funded Preview seed without
-placing it in shell history, then run the app:
+Use a funded 64-character hex seed. The local proof server is pinned to the v1
+lane; the node and indexer are public.
 
 ```bash
 ./scripts/hosted-network.sh preview up
 read -rsp 'Preview wallet seed: ' SE_PREVIEW_SEED; echo
 export SE_PREVIEW_SEED
-npm run e2e:v1 -- --profile preview --allow-cold-sync
+npm run e2e -- --example ownable-counter --profile preview --allow-cold-sync
 ```
 
-The first uncached run can take a long time and writes resumable state under
-`.cache/wallet-state/`. Once a cache exists, omit `--allow-cold-sync`:
+The first run writes a resumable wallet checkpoint under `.cache/wallet-state/`.
+On later runs, omit `--allow-cold-sync` so a missing or invalid checkpoint fails
+closed:
 
 ```bash
-npm run e2e:v1 -- --profile preview
+npm run e2e -- --example ownable-counter --profile preview
 unset SE_PREVIEW_SEED
 ./scripts/hosted-network.sh preview down
 ```
 
-Fund the wallet from the Preview faucet recorded in
+The faucet is recorded in
 [`network-profiles/preview/network.json`](network-profiles/preview/network.json).
-Each E2E run deploys a new contract and spends test-network DUST.
 
-### Preprod — full E2E supported
-
-Start Preprod's pinned v1 proof server and use a funded Preprod seed:
+## Run on Preprod
 
 ```bash
 ./scripts/hosted-network.sh preprod up
 read -rsp 'Preprod wallet seed: ' SE_PREPROD_SEED; echo
 export SE_PREPROD_SEED
-npm run e2e:v1 -- --profile preprod --allow-cold-sync
+npm run e2e -- --example ownable-counter --profile preprod --allow-cold-sync
 ```
 
-For later runs, reuse the checkpoint and omit `--allow-cold-sync`:
+Reuse the checkpoint on subsequent runs:
 
 ```bash
-npm run e2e:v1 -- --profile preprod
+npm run e2e -- --example ownable-counter --profile preprod
 unset SE_PREPROD_SEED
 ./scripts/hosted-network.sh preprod down
 ```
 
-Fund the wallet from the Preprod faucet recorded in
+The faucet is recorded in
 [`network-profiles/preprod/network.json`](network-profiles/preprod/network.json).
-To reuse the existing `midnight-canary` checkpoint, set
-`SE_WALLET_CACHE_DIR` to that project's `.cache/wallet-state` directory before
-running the command.
+To reuse a compatible checkpoint from another project, set
+`SE_WALLET_CACHE_DIR` to its `.cache/wallet-state` directory.
 
-### Stagenet — infrastructure test supported; mini-app E2E pending v2
+## Run on Stagenet
 
-Stagenet is runtime v2 and must use its own experimental proof server. Verify
-the complete Stagenet infrastructure lane with:
+Stagenet uses the v2 RC lane and experimental local prover. Use a funded
+Stagenet seed; do not reuse a v1 network seed or wallet checkpoint.
 
 ```bash
-./scripts/hosted-network.sh stagenet preflight
-./scripts/hosted-network.sh stagenet pull
 ./scripts/hosted-network.sh stagenet up
-./scripts/hosted-network.sh stagenet smoke
+read -rsp 'Stagenet wallet seed: ' SE_STAGENET_SEED; echo
+export SE_STAGENET_SEED
+npm run e2e -- --example ownable-counter --profile stagenet --allow-cold-sync
 ```
 
-This checks Stagenet's hosted node and indexer plus the local
-`9.0.0-rc.5_experimental` proof server. Shut it down with:
+Reuse the Stagenet checkpoint on later runs:
 
 ```bash
+npm run e2e -- --example ownable-counter --profile stagenet
+unset SE_STAGENET_SEED
 ./scripts/hosted-network.sh stagenet down
 ```
 
-Do **not** run `e2e:v1` against Stagenet. The Ownable mini-app is not yet
-deployable there because the repository does not yet contain the isolated v2
-dependency lane (`midnight-js` 5, wallet SDK 2, ledger v9, Compact
-`0.33.0-rc.1` with ZKIR v3). OpenZeppelin Compact `0.3.0-alpha` is also not
-declared compatible with this v2 RC lane. The v1 runner rejects `stagenet`
-instead of mixing incompatible dependencies.
+The faucet is recorded in
+[`network-profiles/stagenet/network.json`](network-profiles/stagenet/network.json).
+Each hosted-network E2E run deploys a new contract and spends test-network DUST.
 
-### Local v2 — planned, not runnable
+## Diagnostics and safety
 
-`local-v2` has a pinned profile but no Compose stack or v2 toolchain yet. Use
-`local-v1` for local E2E testing. Local v2 instructions will be added when the
-matching v2 node, indexer, prover, compiler, and wallet lane is implemented.
-
-### Compatibility gates
-
-Every network command checks the live node runtime, transaction version,
-latest block, v4 indexer, and selected proof-server version before deployment.
-A mismatch fails closed. Starting a hosted lane switches only proof servers
-managed by this repository; an unrelated process using port `6300` is reported
-and left untouched.
+- `./scripts/local-v1.sh smoke`, `./scripts/local-v2.sh smoke`, or
+  `./scripts/hosted-network.sh <profile> smoke` checks the selected live
+  runtime, transaction version, indexer API, and prover without submitting.
+- `SE_DEBUG_ERRORS=1` adds a stack trace to E2E failures.
+- Hosted wallet state is checkpointed during long syncs and at shutdown.
+- Seeds are read only from network-specific environment variables and are never
+  accepted as CLI arguments or logged.
+- Images and dependencies are exact pins; no `latest` tags are used.
+- Starting a lane switches only proof servers managed by this repository. An
+  unrelated process on port `6300` is reported and left untouched.
 
 ## Repository map
 
-- `network-profiles/` — pinned network configuration and capabilities.
-- `examples/` — small feature-focused Compact contracts and manifests.
-- `schemas/` — network-profile and example-manifest contracts.
-- `infra/local-v1/` — complete v1 local stack.
-- `infra/hosted/` — profile-selected local proof server.
-- `toolchains/v1/` — isolated v1 npm manifest and lockfile.
-- `scripts/local-v1.sh` — local stack lifecycle.
-- `scripts/hosted-network.sh` — hosted-network lifecycle and switching.
-- `scripts/preflight-network.sh` — live compatibility validation.
-
-## Safety rules
-
-- Images and dependencies are pinned; no `latest` tags.
-- v1 stable and v2 RC use separate package manifests and lockfiles.
-- Wallet state, mnemonics, secrets, generated artifacts, and reports stay out
-  of Git.
-- Infrastructure does not create or fund wallets.
-- Hosted seeds are accepted only through network-specific environment variables;
-  they are never CLI arguments or log output.
-
-## Next step
-
-Add the isolated v2 RC toolchain and a Stagenet-native example, then mirror that
-lane into `local-v2` when a matching local stack is available.
+- `examples/` — contracts, manifests, and per-app runbooks.
+- `network-profiles/` — endpoints, pins, and capability declarations.
+- `toolchains/v1/`, `toolchains/v2/` — isolated npm and execution lanes.
+- `infra/local-v1/`, `infra/local-v2/`, `infra/hosted/` — pinned stacks.
+- `scripts/run-example.mjs` — capability-aware network-neutral runner.
+- `scripts/preflight-network.sh` — live compatibility gate.

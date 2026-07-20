@@ -23,14 +23,18 @@
   },
   "components": {
     "node": { "version": "2.0.0-rc.4", "image": "midnightntwrk/midnight-node:2.0.0-rc.4", "location": "remote" },
-    "indexer": { "version": "4.4.0-pre-alpha.16", "image": "midnightntwrk/indexer-standalone:4.4.0-pre-alpha.16", "location": "remote" },
+    "indexer": { "version": "4.4.0-pre-alpha.16", "image": "midnightntwrk/indexer-standalone:4.4.0-pre-alpha.16-l91r3-n2r3-bridge-and-events-epics-contract-zswap-16c656df", "location": "remote" },
     "proofServer": { "version": "9.0.0-rc.5_experimental", "image": "midnightntwrk/proof-server:9.0.0-rc.5_experimental", "location": "local" },
-    "compactCompiler": { "version": "0.33.0-rc.1", "location": "build-time" },
+    "compactCompiler": { "version": "0.33.0-rc.2", "location": "build-time" },
     "compactRuntime": { "version": "0.18.0-rc.1", "package": "@midnight-ntwrk/compact-runtime", "location": "build-time" },
     "compactJs": { "version": "2.5.5-rc.6", "package": "@midnight-ntwrk/compact-js", "location": "build-time" },
     "midnightJs": { "version": "5.0.0-beta.4", "package": "@midnight-ntwrk/midnight-js", "location": "build-time" },
-    "walletSdk": { "version": "2.0.0-beta.2", "package": "@midnight-ntwrk/wallet-sdk", "location": "build-time" },
-    "ledger": { "version": "9.1.0.0-rc.3", "package": "@midnightntwrk/ledger-v9", "location": "build-time" }
+    "httpClientProofProvider": { "version": "5.0.0-beta.4", "package": "@midnight-ntwrk/midnight-js-http-client-proof-provider", "location": "build-time" },
+    "indexerPublicDataProvider": { "version": "5.0.0-beta.4", "package": "@midnight-ntwrk/midnight-js-indexer-public-data-provider", "location": "build-time" },
+    "nodeZkConfigProvider": { "version": "5.0.0-beta.4", "package": "@midnight-ntwrk/midnight-js-node-zk-config-provider", "location": "build-time" },
+    "walletSdk": { "version": "2.0.0-beta.2", "package": "@midnightntwrk/wallet-sdk", "location": "build-time" },
+    "ledger": { "version": "1.0.0-rc.3", "protocolVersion": "9.1.0.0-rc.3", "package": "@midnightntwrk/ledger-v9", "location": "build-time" },
+    "openzeppelinCompact": { "version": "0.3.0-alpha", "package": "@openzeppelin/compact-contracts", "location": "build-time" }
   },
   "capabilities": [
     "compact-contracts",
@@ -51,6 +55,6 @@
   "notes": [
     "Live node identity checked on 2026-07-15: spec 2000000, transaction version 4.",
     "ZKIR v3 requires the experimental proof-server image and an explicit compiler flag.",
-    "OpenZeppelin Compact 0.3.0-alpha is not declared compatible with this v2 RC line."
+    "OpenZeppelin Compact 0.3.0-alpha Ownable sources compile with the pinned v2 compiler; network E2E validation is tracked by the example runner."
   ]
 }

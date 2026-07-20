@@ -1,7 +1,7 @@
 import * as compactJs from '@midnight-ntwrk/compact-js';
 import * as compactRuntime from '@midnight-ntwrk/compact-runtime';
-import * as ledger from '@midnight-ntwrk/ledger-v8';
 import { deployContract } from '@midnight-ntwrk/midnight-js/contracts';
+import * as ledger from '@midnightntwrk/ledger-v9';
 
 import {
   Contract,
@@ -12,9 +12,9 @@ import { configureProviders } from '../network/providers.mjs';
 import * as walletApi from '../network/wallet.mjs';
 
 runOwnableCounter({
-  compatibilityLine: 'v1-stable',
-  toolchainDirectory: 'v1',
-  supportedProfiles: ['local-v1', 'preview', 'preprod'],
+  compatibilityLine: 'v2-rc',
+  toolchainDirectory: 'v2',
+  supportedProfiles: ['local-v2', 'stagenet'],
   compactJs,
   compactRuntime,
   ledger,

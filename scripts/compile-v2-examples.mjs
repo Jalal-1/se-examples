@@ -5,12 +5,11 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('../', import.meta.url));
 const examplesRoot = path.join(repoRoot, 'examples');
-const toolchainRoot = path.join(repoRoot, 'toolchains', 'v1');
+const toolchainRoot = path.join(repoRoot, 'toolchains', 'v2');
 const skipZk = process.argv.includes('--skip-zk');
-
 const readJson = (file) => JSON.parse(readFileSync(file, 'utf8'));
 const profile = readJson(
-  path.join(repoRoot, 'network-profiles', 'local-v1', 'network.json'),
+  path.join(repoRoot, 'network-profiles', 'local-v2', 'network.json'),
 );
 const compilerVersion = profile.components.compactCompiler.version;
 
@@ -19,21 +18,23 @@ const versionCheck = spawnSync(
   ['compile', `+${compilerVersion}`, '--version'],
   { cwd: repoRoot, encoding: 'utf8' },
 );
-
 if (versionCheck.status !== 0) {
   const detail = [versionCheck.error?.message, versionCheck.stderr?.trim()]
     .filter(Boolean)
     .join('\n');
   throw new Error(
-    `Compact compiler ${compilerVersion} is unavailable. Install it with ` +
-      `\`compact update --no-set-default ${compilerVersion}\`.` +
+    `Compact compiler ${compilerVersion} is unavailable. Install the release artifact named by the local-v2 profile.` +
       (detail ? `\n${detail}` : ''),
   );
 }
-
-if (versionCheck.stdout.trim() !== compilerVersion) {
+const reportedVersion = versionCheck.stdout.trim();
+const releaseBaseVersion = compilerVersion.replace(/-rc\..*$/, '');
+if (
+  reportedVersion !== compilerVersion &&
+  reportedVersion !== releaseBaseVersion
+) {
   throw new Error(
-    `Compact selected ${versionCheck.stdout.trim()}; expected ${compilerVersion}`,
+    `Compact selected ${reportedVersion}; expected ${compilerVersion} (${releaseBaseVersion} binary).`,
   );
 }
 
@@ -45,27 +46,26 @@ const manifests = readdirSync(examplesRoot, { withFileTypes: true })
   }))
   .map((entry) => ({
     ...entry,
-    target: entry.manifest.toolchains?.['v1-stable'],
+    target: entry.manifest.toolchains?.['v2-rc'],
   }))
   .filter(({ target }) => target !== undefined);
 
 if (manifests.length === 0) {
-  throw new Error('No v1-stable examples were found.');
+  throw new Error('No v2-rc examples were found.');
 }
 
 for (const { directory, manifest, target } of manifests) {
   const source = path.join(examplesRoot, directory, target.source);
   const output = path.join(toolchainRoot, 'artifacts', manifest.id);
-
   if (!existsSync(source)) {
     throw new Error(`${manifest.id}: missing contract source ${source}`);
   }
-
   rmSync(output, { force: true, recursive: true });
 
   const args = ['compile', `+${compilerVersion}`];
   if (skipZk) args.push('--skip-zk');
   args.push(
+    '--feature-zkir-v3',
     '--compact-path',
     path.join(toolchainRoot, 'node_modules'),
     source,
@@ -73,16 +73,14 @@ for (const { directory, manifest, target } of manifests) {
   );
 
   console.log(
-    `${manifest.id}: compiling with Compact ${compilerVersion}` +
+    `${manifest.id}: compiling with Compact ${compilerVersion} and ZKIR v3` +
       (skipZk ? ' (proving keys skipped)' : ''),
   );
   const compiled = spawnSync('compact', args, {
     cwd: repoRoot,
     stdio: 'inherit',
   });
-  if (compiled.status !== 0) {
-    process.exit(compiled.status ?? 1);
-  }
+  if (compiled.status !== 0) process.exit(compiled.status ?? 1);
 }
 
-console.log(`Compiled ${manifests.length} v1 example(s).`);
+console.log(`Compiled ${manifests.length} v2 example(s).`);

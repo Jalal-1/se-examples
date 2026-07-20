@@ -11,7 +11,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gunzipSync, gzipSync } from 'node:zlib';
 
-const repoRoot = fileURLToPath(new URL('../../../', import.meta.url));
+const repoRoot = fileURLToPath(new URL('../../', import.meta.url));
 const cacheRoot = () =>
   path.resolve(
     process.env.SE_WALLET_CACHE_DIR ??
@@ -26,7 +26,6 @@ const cacheFiles = (networkId, seed) => {
   const safeNetwork = safeNetworkId(networkId);
   return [
     path.join(cacheRoot(), `${safeNetwork}-${seedFingerprint(seed)}.wstate.gz`),
-    // Compatibility with wallet snapshots created by midnight-canary.
     path.join(
       cacheRoot(),
       `${safeNetwork}-${seed.slice(0, 8)}-${seed.slice(-8)}.wstate.gz`,
@@ -64,9 +63,7 @@ export const saveWalletState = (networkId, seed, snapshot) => {
   const [file] = cacheFiles(networkId, seed);
   mkdirSync(path.dirname(file), { recursive: true });
   const temporary = `${file}.${process.pid}.tmp`;
-  const compressed = gzipSync(
-    Buffer.from(JSON.stringify(snapshot), 'utf8'),
-  );
+  const compressed = gzipSync(Buffer.from(JSON.stringify(snapshot), 'utf8'));
   writeFileSync(temporary, compressed, { mode: 0o600 });
   renameSync(temporary, file);
 };

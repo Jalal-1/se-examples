@@ -1,5 +1,5 @@
-import * as ledger from '@midnight-ntwrk/ledger-v8';
-import { unshieldedToken } from '@midnight-ntwrk/ledger-v8';
+import * as ledger from '@midnightntwrk/ledger-v9';
+import { unshieldedToken } from '@midnightntwrk/ledger-v9';
 import { getNetworkId, setNetworkId } from '@midnight-ntwrk/midnight-js/network-id';
 import {
   createKeystore,
@@ -167,7 +167,7 @@ export const buildWallet = async (
   const shieldedSecretKeys = ledger.ZswapSecretKeys.fromSeed(keys[Roles.Zswap]);
   const dustSecretKey = ledger.DustSecretKey.fromSeed(keys[Roles.Dust]);
   const unshieldedKeystore = createKeystore(
-    keys[Roles.NightExternal],
+    { kind: 'schnorr', secret: keys[Roles.NightExternal] },
     getNetworkId(),
   );
 
@@ -278,7 +278,6 @@ export const buildWallet = async (
 const registerForDustGeneration = async (context, timeoutMs) => {
   const state = await firstSyncedState(context.wallet, timeoutMs);
   if (state.dust.balance(new Date()) > 0n) return;
-
   const nightUtxos = state.unshielded.availableCoins.filter(
     (coin) => coin.meta?.registeredForDustGeneration !== true,
   );
@@ -296,7 +295,7 @@ const registerForDustGeneration = async (context, timeoutMs) => {
   const recipe = await context.wallet.registerNightUtxosForDustGeneration(
     nightUtxos,
     context.unshieldedKeystore.getPublicKey(),
-    (payload) => context.unshieldedKeystore.signData(payload),
+    context.unshieldedKeystore.signDataAsync,
   );
   const finalized = await context.wallet.finalizeRecipe(recipe);
   await context.wallet.submitTransaction(finalized);

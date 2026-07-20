@@ -18,7 +18,7 @@ import {
   loadWalletState,
   saveWalletState,
   walletCacheDescription,
-} from '../network/wallet-state-cache.mjs';
+} from '../../common/wallet-state-cache.mjs';
 
 const networkId = 'preprod';
 const seed = 'ab'.repeat(32);

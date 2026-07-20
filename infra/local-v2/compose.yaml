@@ -1,8 +1,8 @@
-name: ${COMPOSE_PROJECT_NAME:-se-examples-local-v1}
+name: ${COMPOSE_PROJECT_NAME:-se-examples-local-v2}
 
 services:
   node:
-    image: ${MIDNIGHT_NODE_IMAGE:-midnightntwrk/midnight-node:1.0.0}
+    image: ${MIDNIGHT_NODE_IMAGE:-midnightntwrk/midnight-node:2.0.0-rc.4}
     restart: unless-stopped
     ports:
       - 127.0.0.1:${MIDNIGHT_NODE_PORT:-9944}:9944
@@ -18,10 +18,10 @@ services:
       retries: 30
       start_period: 5s
     labels:
-      io.se-examples.network-profile: local-v1
+      io.se-examples.network-profile: local-v2
 
   indexer:
-    image: ${MIDNIGHT_INDEXER_IMAGE:-midnightntwrk/indexer-standalone:4.3.3}
+    image: ${MIDNIGHT_INDEXER_IMAGE:-midnightntwrk/indexer-standalone:4.4.0-pre-alpha.16-l91r3-n2r3-bridge-and-events-epics-contract-zswap-16c656df}
     restart: unless-stopped
     ports:
       - 127.0.0.1:${MIDNIGHT_INDEXER_PORT:-8088}:8088
@@ -41,16 +41,16 @@ services:
       test: [CMD-SHELL, cat /var/run/indexer-standalone/running]
       interval: 10s
       timeout: 5s
-      retries: 20
+      retries: 30
       start_period: 10s
     depends_on:
       node:
         condition: service_healthy
     labels:
-      io.se-examples.network-profile: local-v1
+      io.se-examples.network-profile: local-v2
 
   proof-server:
-    image: ${MIDNIGHT_PROOF_SERVER_IMAGE:-midnightntwrk/proof-server:8.1.0}
+    image: ${MIDNIGHT_PROOF_SERVER_IMAGE:-midnightntwrk/proof-server:9.0.0-rc.5_experimental}
     command: [midnight-proof-server, -v]
     restart: unless-stopped
     ports:
@@ -58,8 +58,6 @@ services:
     environment:
       RUST_BACKTRACE: full
     healthcheck:
-      # This minimal image contains no shell or HTTP client. The host-side
-      # smoke test below is the authoritative HTTP readiness/version gate.
       test: [CMD, midnight-proof-server, --help]
       interval: 10s
       timeout: 5s
@@ -67,7 +65,7 @@ services:
       start_period: 10s
     labels:
       io.se-examples.component: proof-server
-      io.se-examples.network-profile: local-v1
+      io.se-examples.network-profile: local-v2
 
 volumes:
   node-state:

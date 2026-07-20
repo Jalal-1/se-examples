@@ -1,14 +1,24 @@
 {
   "$schema": "../../schemas/example-manifest.schema.json",
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "ownable-counter",
   "displayName": "Ownable Counter",
   "description": "An unshielded counter whose state-changing circuit is restricted by OpenZeppelin Ownable.",
-  "toolchainLine": "v1-stable",
-  "networks": ["local-v1", "preview", "preprod"],
   "requires": ["compact-contracts", "shielded-state", "unshielded-state"],
-  "openzeppelin": {
-    "package": "@openzeppelin/compact-contracts",
-    "version": "0.3.0-alpha"
+  "toolchains": {
+    "v1-stable": {
+      "source": "contract/ownable-counter.compact",
+      "openzeppelin": {
+        "package": "@openzeppelin/compact-contracts",
+        "version": "0.3.0-alpha"
+      }
+    },
+    "v2-rc": {
+      "source": "contract/ownable-counter.compact",
+      "openzeppelin": {
+        "package": "@openzeppelin/compact-contracts",
+        "version": "0.3.0-alpha"
+      }
+    }
   }
 }
