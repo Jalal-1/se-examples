@@ -22,6 +22,10 @@ From the repository root, run the v1 examples with:
 ```bash
 npm run test:v1       # compile without proving keys, then run circuit tests
 npm run compile:v1    # generate complete deployable artifacts
+npm run e2e:v1 -- --profile local-v1  # deploy and transact on the real stack
 ```
 
 Generated output lives in `toolchains/v1/artifacts/` and is gitignored.
+The E2E runner supports `local-v1`, `preview`, and `preprod`; it fails closed on
+v2 profiles. Hosted seeds use `SE_PREVIEW_SEED` or `SE_PREPROD_SEED`, while
+wallet sync checkpoints remain under the gitignored `.cache/wallet-state/`.

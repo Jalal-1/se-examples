@@ -11,13 +11,17 @@
     "check": "node ../../scripts/check-v1-toolchain.mjs",
     "compile": "npm run check && node ../../scripts/compile-v1-examples.mjs",
     "compile:test": "npm run check && node ../../scripts/compile-v1-examples.mjs --skip-zk",
-    "test": "npm run compile:test && node --test tests/*.test.mjs"
+    "test": "npm run compile:test && node --test tests/*.test.mjs",
+    "e2e": "node runners/ownable-counter.mjs"
   },
   "dependencies": {
     "@midnight-ntwrk/compact-js": "2.5.1",
     "@midnight-ntwrk/compact-runtime": "0.16.0",
     "@midnight-ntwrk/ledger-v8": "8.1.0",
     "@midnight-ntwrk/midnight-js": "4.1.1",
+    "@midnight-ntwrk/midnight-js-http-client-proof-provider": "4.1.1",
+    "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "4.1.1",
+    "@midnight-ntwrk/midnight-js-node-zk-config-provider": "4.1.1",
     "@midnightntwrk/wallet-sdk": "1.2.0",
     "@openzeppelin/compact-contracts": "0.3.0-alpha"
   },

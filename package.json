@@ -11,6 +11,7 @@
     "install:v1": "npm ci --prefix toolchains/v1",
     "check:v1": "node scripts/check-v1-toolchain.mjs",
     "compile:v1": "npm --prefix toolchains/v1 run compile",
-    "test:v1": "npm --prefix toolchains/v1 run test"
+    "test:v1": "npm --prefix toolchains/v1 run test",
+    "e2e:v1": "npm run compile:v1 && npm --prefix toolchains/v1 run e2e --"
   }
 }

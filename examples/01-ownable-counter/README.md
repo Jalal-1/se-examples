@@ -34,3 +34,15 @@ npm run compile:v1
 Generated files are written under `toolchains/v1/artifacts/` and stay out of
 Git. The witness in the test harness is demonstration code, not an audited
 production key-management implementation.
+
+Run the same behavior against the complete local v1 stack with:
+
+```bash
+./scripts/local-v1.sh up
+npm run e2e:v1 -- --profile local-v1
+```
+
+The real-network runner also targets Preview and Preprod. See the repository
+README for funded-seed, proof-server, and resumable wallet-cache setup. The v1
+example is intentionally rejected on Stagenet because that network is on the
+separate v2 RC compatibility line.

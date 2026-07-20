@@ -26,6 +26,9 @@ const requiredPins = [
   ['dependencies', 'compactRuntime'],
   ['dependencies', 'ledger'],
   ['dependencies', 'midnightJs'],
+  ['dependencies', 'httpClientProofProvider'],
+  ['dependencies', 'indexerPublicDataProvider'],
+  ['dependencies', 'nodeZkConfigProvider'],
   ['dependencies', 'walletSdk'],
   ['dependencies', 'openzeppelinCompact'],
   ['devDependencies', 'testkitJs'],
@@ -124,6 +127,15 @@ for (const entry of exampleDirectories) {
       assert(
         target.capabilities.includes(capability),
         `${example.id} requires ${capability}, which ${networkId} does not provide`,
+      );
+    }
+    for (const [, componentName] of requiredPins) {
+      const expectedComponent = profile.components[componentName];
+      const targetComponent = target.components[componentName];
+      assert(
+        targetComponent?.package === expectedComponent.package &&
+          targetComponent?.version === expectedComponent.version,
+        `${example.id} target ${networkId} has a mismatched ${componentName} pin`,
       );
     }
   }

@@ -8,10 +8,10 @@ not be mixed.
 
 | Profile | Topology | Runtime spec/tx | Proof server | Features | State |
 | --- | --- | --- | --- | --- | --- |
-| `local-v1` | local node + indexer + prover | `1000000` / `3` | `8.1.0` | Compact contracts; shielded/unshielded state; native tokens | ready |
-| `preview` | hosted node/indexer + local prover | `1000000` / `3` | `8.1.0` | Compact contracts; shielded/unshielded state; native tokens | ready |
-| `preprod` | hosted node/indexer + local prover | `1000000` / `3` | `8.1.0` | Compact contracts; shielded/unshielded state; native tokens | ready |
-| **`stagenet`** | hosted node/indexer + local prover | `2000000` / `4` | `9.0.0-rc.5_experimental` | **USDCx crypto primitives; ECDSA; contract-to-contract calls (phase 1, unshielded); ZKIR v3; cNIGHT→mNIGHT bridge; Keccak; secp256k1; contract events (phase 1, unshielded)** | **ready** |
+| `local-v1` | local node + indexer + prover | `1000000` / `3` | `8.1.0` | Compact contracts; shielded/unshielded state; native tokens | infra + E2E ready |
+| `preview` | hosted node/indexer + local prover | `1000000` / `3` | `8.1.0` | Compact contracts; shielded/unshielded state; native tokens | infra + E2E ready |
+| `preprod` | hosted node/indexer + local prover | `1000000` / `3` | `8.1.0` | Compact contracts; shielded/unshielded state; native tokens | infra + E2E ready |
+| **`stagenet`** | hosted node/indexer + local prover | `2000000` / `4` | `9.0.0-rc.5_experimental` | **USDCx crypto primitives; ECDSA; contract-to-contract calls (phase 1, unshielded); ZKIR v3; cNIGHT→mNIGHT bridge; Keccak; secp256k1; contract events (phase 1, unshielded)** | **infra ready; v2 E2E pending** |
 | `local-v2` | local node + indexer + prover | `2000000` / `4` expected | `9.0.0-rc.5_experimental` | Stagenet feature set except the Cardano bridge | planned |
 
 Exact endpoints, images, SDK/compiler versions, and capabilities live in
@@ -98,6 +98,42 @@ npm run compile:v1
 `test:v1` runs fast circuit-level behavior tests without proving keys;
 `compile:v1` generates the complete deployable artifacts.
 
+## Run the real-network test
+
+The E2E runner uses a real wallet to deploy Ownable Counter, confirms its
+indexed state, exercises authorized and rejected increments, transfers
+ownership, and confirms the final counter is `2`.
+
+Local (uses the public genesis-funded development seed):
+
+```bash
+./scripts/local-v1.sh up
+npm run e2e:v1 -- --profile local-v1
+```
+
+Preview or Preprod needs the matching hosted node/indexer, the profile's local
+proof server, and a funded seed. Enter the seed without placing it in shell
+history:
+
+```bash
+PROFILE=preprod
+./scripts/hosted-network.sh "$PROFILE" up
+read -rsp 'Funded wallet seed: ' SE_PREPROD_SEED; echo
+export SE_PREPROD_SEED
+npm run e2e:v1 -- --profile "$PROFILE" --allow-cold-sync
+```
+
+Use `SE_PREVIEW_SEED` for Preview. The first hosted sync writes a private,
+gitignored checkpoint under `.cache/wallet-state/`; later runs omit
+`--allow-cold-sync` and delta-sync from it. `SE_WALLET_CACHE_DIR` can point at
+an existing compatible `midnight-canary` cache directory. Each E2E run deploys
+a new contract and spends test-network DUST.
+
+Stagenet deliberately does not use this command: it requires its own v2 RC
+dependency island (`midnight-js` 5, wallet SDK 2, ledger v9, experimental
+prover). This boundary prevents a green-looking test built from incompatible
+components.
+
 ## Repository map
 
 - `network-profiles/` — pinned network configuration and capabilities.
@@ -117,8 +153,10 @@ npm run compile:v1
 - Wallet state, mnemonics, secrets, generated artifacts, and reports stay out
   of Git.
 - Infrastructure does not create or fund wallets.
+- Hosted seeds are accepted only through network-specific environment variables;
+  they are never CLI arguments or log output.
 
 ## Next step
 
-Add the wallet-backed deployment runner for the Ownable Counter, beginning with
-`local-v1` and then reusing the same flow on Preview and Preprod.
+Add the isolated v2 RC toolchain and a Stagenet-native example, then mirror that
+lane into `local-v2` when a matching local stack is available.
